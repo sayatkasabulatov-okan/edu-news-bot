@@ -1,0 +1,31 @@
+# Telegram
+python-telegram-bot[all]==20.7
+
+# Database
+sqlalchemy[asyncio]==2.0.25
+asyncpg==0.29.0
+alembic==1.13.1
+
+# HTTP & Parsing
+aiohttp==3.9.1
+beautifulsoup4==4.12.2
+lxml==5.1.0
+feedparser==6.0.10
+
+# AI
+openai==1.6.1
+
+# Scheduling
+apscheduler==3.10.4
+
+# Configuration
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Logging
+loguru==0.7.2
+
+# Utils
+aiofiles==23.2.1
+python-dateutil==2.8.2

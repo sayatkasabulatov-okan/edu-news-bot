@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(python3 -m venv:*)",
+      "Bash(./venv/bin/pip install:*)",
+      "Bash(./venv/bin/python:*)",
+      "Bash(export PYTHONPATH=.)",
+      "Bash(kill:*)",
+      "Bash(source venv/bin/activate)",
+      "Bash(python:*)",
+      "Bash(PYTHONPATH=/Users/sayatkasabulatov/Documents/My-first-project ./venv/bin/python:*)",
+      "Bash(python3 -c:*)",
+      "Bash(PYTHONPATH=/Users/sayatkasabulatov/Documents/My-first-project ./venv/bin/python3:*)",
+      "Bash(pip install:*)",
+      "Bash(python3:*)",
+      "Bash(killall:*)",
+      "Bash(pkill:*)",
+      "WebFetch(domain:www.opportunitiescircle.com)",
+      "WebFetch(domain:globalscholarships.com)",
+      "WebFetch(domain:opportunitiescorners.com)",
+      "Bash(ls:*)",
+      "Bash(tee:*)",
+      "Bash(PYTHONPATH=/Users/sayatkasabulatov/Documents/My-first-project python:*)",
+      "Bash(pgrep:*)",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-0c-2o-sheets.googleusercontent.com)",
+      "WebFetch(domain:brightscholarship.com)",
+      "WebFetch(domain:spubl.kz)",
+      "Bash(lsof:*)",
+      "Bash(launchctl list:*)",
+      "Bash(chmod:*)",
+      "Bash(tree:*)",
+      "Bash(alembic revision:*)",
+      "Bash(find:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
