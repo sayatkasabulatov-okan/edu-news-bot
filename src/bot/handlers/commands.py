@@ -17,7 +17,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user_name = update.effective_user.first_name or "друг"
 
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text(
             "🚫 <b>Доступ ограничен</b>\n\n"
             "К сожалению, этот бот доступен только для администратора.\n\n"
@@ -137,7 +137,7 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /stats command - show statistics"""
     user_id = update.effective_user.id
 
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text(
             "У вас нет доступа к этому боту."
         )
@@ -192,7 +192,7 @@ async def collect_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /collect command - manually run news collection"""
     user_id = update.effective_user.id
 
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text(
             "У вас нет доступа к этому боту."
         )
@@ -342,12 +342,16 @@ async def collect_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                     message_text = f"📝 **Дайджест #{digest_id}**\n\n{digest.content}\n\n_Что хочешь сделать с этим дайджестом?_"
 
-                    await context.bot.send_message(
-                        chat_id=settings.MODERATOR_CHAT_ID,
-                        text=message_text,
-                        reply_markup=keyboard,
-                        parse_mode='Markdown'
-                    )
+                    for mod_id in settings.moderator_ids:
+                        try:
+                            await context.bot.send_message(
+                                chat_id=mod_id,
+                                text=message_text,
+                                reply_markup=keyboard,
+                                parse_mode='Markdown'
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to send digest to moderator {mod_id}: {e}")
 
                     await update.message.reply_text(
                         f"✨ Дайджест #{digest_id} создан и отправлен тебе!"
@@ -369,7 +373,7 @@ async def health_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     # Check if user is moderator
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text("❌ У тебя нет прав для этой команды.")
         return
 

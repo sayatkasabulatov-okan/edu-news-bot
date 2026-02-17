@@ -15,7 +15,7 @@ async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     # Check if user is moderator
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text(
             "❌ У вас нет прав доступа к админ-панели."
         )

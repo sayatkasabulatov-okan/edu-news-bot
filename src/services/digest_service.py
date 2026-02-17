@@ -127,23 +127,22 @@ class DigestService:
                 logger.info(f"Using image from article: {article.title[:50]}...")
                 return article.image_url
 
-        # No images in articles - generate one using DALL-E
+        # No images in articles - generate one using DALL-E from all articles
         logger.info("No images in articles, generating with DALL-E")
 
-        # Use first article for prompt
         if articles and len(articles) > 0:
-            first_article = articles[0]
-            title = first_article.title
-            content = first_article.content or ""
+            articles_info = [
+                {'title': article.title, 'content': article.content or ''}
+                for article in articles
+            ]
 
-            # Generate image
-            image_url = await self.image_service.generate_image(title, content)
+            image_path = await self.image_service.generate_digest_image(articles_info)
 
-            if image_url:
-                logger.info(f"Generated image: {image_url}")
-                return image_url
+            if image_path:
+                logger.info(f"Generated digest image: {image_path}")
+                return image_path
             else:
-                logger.warning("Failed to generate image with DALL-E")
+                logger.warning("Failed to generate digest image with DALL-E")
                 return None
 
         return None

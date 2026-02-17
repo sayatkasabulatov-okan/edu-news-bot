@@ -8,6 +8,7 @@ from telegram import Bot
 from src.database.repositories.post_repo import PostRepository
 from src.database.repositories.digest_repo import DigestRepository
 from src.config import settings
+from src.utils.image_helpers import prepare_photo
 
 
 class PostService:
@@ -49,7 +50,7 @@ class PostService:
                     # Send image and text separately
                     await self.bot.send_photo(
                         chat_id=self.channel_id,
-                        photo=digest.image_url
+                        photo=prepare_photo(digest.image_url)
                     )
                     message = await self.bot.send_message(
                         chat_id=self.channel_id,
@@ -60,7 +61,7 @@ class PostService:
                     # Send image with caption
                     message = await self.bot.send_photo(
                         chat_id=self.channel_id,
-                        photo=digest.image_url,
+                        photo=prepare_photo(digest.image_url),
                         caption=digest.content,
                         parse_mode='HTML'
                     )
@@ -205,7 +206,7 @@ class PostService:
                             if len(post.content) > 1024:
                                 await self.bot.send_photo(
                                     chat_id=self.channel_id,
-                                    photo=image_url
+                                    photo=prepare_photo(image_url)
                                 )
                                 message = await self.bot.send_message(
                                     chat_id=self.channel_id,
@@ -215,7 +216,7 @@ class PostService:
                             else:
                                 message = await self.bot.send_photo(
                                     chat_id=self.channel_id,
-                                    photo=image_url,
+                                    photo=prepare_photo(image_url),
                                     caption=post.content,
                                     parse_mode='HTML'
                                 )
@@ -253,7 +254,7 @@ class PostService:
                             if len(post.content) > 1024:
                                 await self.bot.send_photo(
                                     chat_id=self.channel_id,
-                                    photo=image_url
+                                    photo=prepare_photo(image_url)
                                 )
                                 message = await self.bot.send_message(
                                     chat_id=self.channel_id,
@@ -264,7 +265,7 @@ class PostService:
                             else:
                                 message = await self.bot.send_photo(
                                     chat_id=self.channel_id,
-                                    photo=image_url,
+                                    photo=prepare_photo(image_url),
                                     caption=post.content,
                                     parse_mode='HTML'
                                 )
@@ -407,7 +408,7 @@ class PostService:
                     # Send image and text separately
                     await self.bot.send_photo(
                         chat_id=self.channel_id,
-                        photo=image_url
+                        photo=prepare_photo(image_url)
                     )
                     message = await self.bot.send_message(
                         chat_id=self.channel_id,
@@ -419,7 +420,7 @@ class PostService:
                     # Send image with caption
                     message = await self.bot.send_photo(
                         chat_id=self.channel_id,
-                        photo=image_url,
+                        photo=prepare_photo(image_url),
                         caption=post.content,
                         parse_mode='HTML'
                     )

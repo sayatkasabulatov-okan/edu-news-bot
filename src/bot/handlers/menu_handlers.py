@@ -20,7 +20,7 @@ async def show_last_digest(update: Update, context: ContextTypes.DEFAULT_TYPE, i
     user_id = update.effective_user.id if is_callback else update.message.from_user.id
 
     # Check if user is moderator
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         error_msg = "❌ У тебя нет прав для просмотра дайджестов."
         if is_callback:
             await update.callback_query.answer(error_msg, show_alert=True)
@@ -129,7 +129,7 @@ async def show_last_article(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     user_id = update.effective_user.id if is_callback else update.message.from_user.id
 
     # Check if user is moderator
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         error_msg = "❌ У тебя нет прав для просмотра статей."
         if is_callback:
             await update.callback_query.answer(error_msg, show_alert=True)
@@ -349,7 +349,7 @@ async def handle_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYP
 
         # Check if user is moderator
         from src.config import settings
-        if user_id != settings.MODERATOR_CHAT_ID:
+        if not settings.is_moderator(user_id):
             await query.answer(
                 "❌ У тебя нет прав доступа к админ-панели.",
                 show_alert=True

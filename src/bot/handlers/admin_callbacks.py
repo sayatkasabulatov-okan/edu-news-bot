@@ -28,7 +28,7 @@ async def handle_admin_callbacks(update: Update, context: ContextTypes.DEFAULT_T
     callback_data = query.data
 
     # Check authorization
-    if not update.effective_user or update.effective_user.id != settings.MODERATOR_CHAT_ID:
+    if not update.effective_user or not settings.is_moderator(update.effective_user.id):
         await query.answer("❌ Доступ запрещен", show_alert=True)
         return
 

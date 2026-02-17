@@ -23,7 +23,7 @@ async def system_status_command(update: Update, context: ContextTypes.DEFAULT_TY
     user_id = update.effective_user.id
 
     # Check permissions
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text("❌ У тебя нет прав для этой команды.")
         return
 
@@ -94,7 +94,7 @@ async def cleanup_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     # Check permissions
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text("❌ У тебя нет прав для этой команды.")
         return
 
@@ -194,7 +194,7 @@ async def logs_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     # Check permissions
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text("❌ У тебя нет прав для этой команды.")
         return
 
@@ -247,7 +247,7 @@ async def optimize_db_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     user_id = update.effective_user.id
 
     # Check permissions
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         await update.message.reply_text("❌ У тебя нет прав для этой команды.")
         return
 

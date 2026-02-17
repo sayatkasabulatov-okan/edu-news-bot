@@ -21,6 +21,7 @@ from src.utils.exceptions import (
     PublicationFailedError,
     BotException
 )
+from src.utils.image_helpers import prepare_photo
 
 
 async def safe_edit_message(query, text: str, reply_markup=None, parse_mode=None):
@@ -489,7 +490,7 @@ async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = update.effective_user.id
 
-    if user_id != settings.MODERATOR_CHAT_ID:
+    if not settings.is_moderator(user_id):
         return
 
     # Check TTL for edit context (1 hour)
@@ -698,16 +699,15 @@ async def handle_regenerate_image(query, context: ContextTypes.DEFAULT_TYPE):
                 await safe_edit_message(query, "❌ Статьи не найдены")
                 return
 
-            # Generate new image
+            # Generate new image from all articles
             from src.services.image_generation_service import ImageGenerationService
             image_service = ImageGenerationService()
 
-            # Use first article for image generation
-            first_article = articles[0]
-            new_image_url = await image_service.generate_image(
-                first_article.title,
-                first_article.content
-            )
+            articles_info = [
+                {'title': article.title, 'content': article.content or ''}
+                for article in articles
+            ]
+            new_image_url = await image_service.generate_digest_image(articles_info)
 
             if not new_image_url:
                 await safe_edit_message(
@@ -766,14 +766,27 @@ async def handle_regenerate_image(query, context: ContextTypes.DEFAULT_TYPE):
                 except:
                     pass
 
-                # Send new message with image
-                await context.bot.send_photo(
-                    chat_id=query.message.chat_id,
-                    photo=new_image_url,
-                    caption=full_message,
-                    reply_markup=get_digest_keyboard(digest_id, digest.status),
-                    parse_mode='HTML'
-                )
+                # Check caption length (Telegram limit is 1024 chars)
+                if len(full_message) > 1024:
+                    await context.bot.send_photo(
+                        chat_id=query.message.chat_id,
+                        photo=prepare_photo(new_image_url)
+                    )
+                    await context.bot.send_message(
+                        chat_id=query.message.chat_id,
+                        text=full_message,
+                        reply_markup=get_digest_keyboard(digest_id, digest.status),
+                        parse_mode='HTML',
+                        disable_web_page_preview=True
+                    )
+                else:
+                    await context.bot.send_photo(
+                        chat_id=query.message.chat_id,
+                        photo=prepare_photo(new_image_url),
+                        caption=full_message,
+                        reply_markup=get_digest_keyboard(digest_id, digest.status),
+                        parse_mode='HTML'
+                    )
 
                 logger.info(f"Digest {digest_id} resent with new image")
             else:
@@ -1063,14 +1076,27 @@ async def handle_post_image(query, context: ContextTypes.DEFAULT_TYPE):
 
             message_text += "\n\n<i>👇 Выбери действие:</i>"
 
-            # Send new message with image
-            await context.bot.send_photo(
-                chat_id=query.message.chat_id,
-                photo=new_image_url,
-                caption=message_text,
-                reply_markup=get_post_actions_keyboard(post_id, has_digest=False),
-                parse_mode='HTML'
-            )
+            # Send new message with image (check caption length)
+            if len(message_text) > 1024:
+                await context.bot.send_photo(
+                    chat_id=query.message.chat_id,
+                    photo=prepare_photo(new_image_url)
+                )
+                await context.bot.send_message(
+                    chat_id=query.message.chat_id,
+                    text=message_text,
+                    reply_markup=get_post_actions_keyboard(post_id, has_digest=False),
+                    parse_mode='HTML',
+                    disable_web_page_preview=True
+                )
+            else:
+                await context.bot.send_photo(
+                    chat_id=query.message.chat_id,
+                    photo=prepare_photo(new_image_url),
+                    caption=message_text,
+                    reply_markup=get_post_actions_keyboard(post_id, has_digest=False),
+                    parse_mode='HTML'
+                )
 
             logger.info(f"Post {post_id} resent with new image")
 
@@ -1122,12 +1148,9 @@ async def handle_post_reject(query, context: ContextTypes.DEFAULT_TYPE):
     try:
         async with get_session() as session:
             from src.database.repositories.post_repo import PostRepository
-            from src.database.models import Post
 
-            # Update post status to rejected
-            await session.execute(
-                f"UPDATE posts SET status = 'rejected' WHERE id = {post_id}"
-            )
+            post_repo = PostRepository(session)
+            await post_repo.update_status(post_id, 'rejected')
             await session.commit()
 
         await safe_edit_message(

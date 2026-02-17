@@ -22,20 +22,21 @@ class ScraperScheduler:
 
     def start(self):
         """Start the scheduler"""
-        # NEW: Schedule article processing every 4 hours (individual article mode)
+        # NEW: Schedule article processing at specific hours
         if hasattr(settings, 'ENABLE_ARTICLE_MODE') and settings.ENABLE_ARTICLE_MODE:
+            scraping_hours = settings.SCRAPING_HOURS if hasattr(settings, 'SCRAPING_HOURS') else '9,14,18'
             self.scheduler.add_job(
                 self.run_article_processing,
                 trigger=CronTrigger(
-                    hour=f"*/{settings.SCRAPING_INTERVAL_HOURS if hasattr(settings, 'SCRAPING_INTERVAL_HOURS') else 4}",
+                    hour=scraping_hours,
                     minute=0
                 ),
                 id='article_processing',
                 replace_existing=True,
-                name='Article Processing (Every 4 hours)'
+                name=f'Article Processing ({scraping_hours})'
             )
             logger.info(
-                f"Article processing mode enabled. Running every {settings.SCRAPING_INTERVAL_HOURS if hasattr(settings, 'SCRAPING_INTERVAL_HOURS') else 4} hours"
+                f"Article processing mode enabled. Running at hours: {scraping_hours}"
             )
 
         # OLD: Keep daily scraping for digest mode (backward compatibility)

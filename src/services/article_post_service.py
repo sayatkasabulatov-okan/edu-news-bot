@@ -153,16 +153,19 @@ class ArticlePostService:
             # Get keyboard
             keyboard = get_post_actions_keyboard(post.id, has_digest=False)
 
-            # Send message
-            message = await self.bot.send_message(
-                chat_id=settings.MODERATOR_CHAT_ID,
-                text=full_message,
-                reply_markup=keyboard,
-                parse_mode='HTML',
-                disable_web_page_preview=True
-            )
-
-            logger.info(f"Post {post.id} sent to moderator (message_id: {message.message_id})")
+            # Send to all moderators
+            for mod_id in settings.moderator_ids:
+                try:
+                    message = await self.bot.send_message(
+                        chat_id=mod_id,
+                        text=full_message,
+                        reply_markup=keyboard,
+                        parse_mode='HTML',
+                        disable_web_page_preview=True
+                    )
+                    logger.info(f"Post {post.id} sent to moderator {mod_id} (message_id: {message.message_id})")
+                except Exception as e:
+                    logger.error(f"Failed to send post {post.id} to moderator {mod_id}: {e}")
 
         except Exception as e:
             logger.error(f"Error sending post {post.id} to moderator: {e}")

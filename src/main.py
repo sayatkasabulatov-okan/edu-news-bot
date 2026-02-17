@@ -101,21 +101,26 @@ async def send_digest_to_moderator(digest_id: int):
             # Combine all parts
             full_message = header + digest.content + sources_info + hallucination_warning + footer
 
-            # Send to moderator
-            message = await bot_app.bot.send_message(
-                chat_id=settings.MODERATOR_CHAT_ID,
-                text=full_message,
-                reply_markup=get_digest_keyboard(digest_id),
-                parse_mode='HTML',
-                disable_web_page_preview=True
-            )
-
-            # Save message ID
+            # Send to all moderators
             from src.database.repositories.digest_repo import DigestRepository
             digest_repo = DigestRepository(session)
-            await digest_repo.set_moderator_message(digest_id, message.message_id)
 
-            logger.info(f"Digest {digest_id} sent to moderator with {len(seen_sources)} sources")
+            for mod_id in settings.moderator_ids:
+                try:
+                    message = await bot_app.bot.send_message(
+                        chat_id=mod_id,
+                        text=full_message,
+                        reply_markup=get_digest_keyboard(digest_id),
+                        parse_mode='HTML',
+                        disable_web_page_preview=True
+                    )
+                    # Save last message ID for reference
+                    await digest_repo.set_moderator_message(digest_id, message.message_id)
+                    logger.info(f"Digest {digest_id} sent to moderator {mod_id}")
+                except Exception as e:
+                    logger.error(f"Failed to send digest {digest_id} to moderator {mod_id}: {e}")
+
+            logger.info(f"Digest {digest_id} sent to {len(settings.moderator_ids)} moderator(s) with {len(seen_sources)} sources")
 
     except Exception as e:
         logger.error(f"Error sending digest to moderator: {e}")
@@ -237,12 +242,12 @@ async def main():
 
         # Start bot
         logger.info("Bot is starting...")
-        logger.info(f"Moderator chat ID: {settings.MODERATOR_CHAT_ID}")
+        logger.info(f"Moderator chat IDs: {settings.moderator_ids}")
         logger.info(f"Channel ID: {settings.CHANNEL_ID}")
 
         # Log scraping mode
         if settings.ENABLE_ARTICLE_MODE:
-            logger.info(f"⚡ Article mode enabled: Processing individual articles every {settings.SCRAPING_INTERVAL_HOURS} hours")
+            logger.info(f"⚡ Article mode enabled: Processing at {settings.SCRAPING_HOURS} (3 times/day)")
         if settings.ENABLE_DIGEST_MODE:
             logger.info(f"📰 Digest mode enabled: Daily digests at {settings.SCRAPING_SCHEDULE_HOUR}:00")
 
