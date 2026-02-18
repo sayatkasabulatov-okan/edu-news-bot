@@ -388,3 +388,84 @@ async def health_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     logger.info(f"Health check requested by user {user_id}")
+
+
+async def init_sources_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /init_sources command - add default sources to empty database"""
+    user_id = update.effective_user.id
+
+    if not settings.is_moderator(user_id):
+        await update.message.reply_text("У вас нет доступа к этому боту.")
+        return
+
+    try:
+        async with get_session() as session:
+            # Check if sources already exist
+            result = await session.execute(select(Source))
+            existing = result.scalars().all()
+
+            if existing:
+                sources_list = "\n".join(
+                    f"{'✅' if s.is_active else '❌'} {s.name}"
+                    for s in existing
+                )
+                await update.message.reply_text(
+                    f"Источники уже есть в базе ({len(existing)}):\n\n{sources_list}"
+                )
+                return
+
+            # Add all sources
+            sources_data = [
+                {
+                    'name': 'Bolashak International Scholarship',
+                    'url': 'https://bolashak.gov.kz/ru/news/',
+                    'parser_class': 'BolashakParser',
+                    'is_active': True
+                },
+                {
+                    'name': 'Opportunities Circle',
+                    'url': 'https://www.opportunitiescircle.com/scholarships/',
+                    'parser_class': 'OpportunitiesCircleParser',
+                    'is_active': True
+                },
+                {
+                    'name': 'Opportunities Corners',
+                    'url': 'https://opportunitiescorners.com/category/internships/',
+                    'parser_class': 'OpportunitiesCornersParser',
+                    'is_active': True
+                },
+                {
+                    'name': 'Bright Scholarship',
+                    'url': 'https://brightscholarship.com/',
+                    'parser_class': 'BrightScholarshipParser',
+                    'is_active': True
+                },
+                {
+                    'name': 'Global Scholarships (Kazakhstan)',
+                    'url': 'https://globalscholarships.com/scholarship-search/nationality-kazakhstan/',
+                    'parser_class': 'GlobalScholarshipsParser',
+                    'is_active': True
+                },
+                {
+                    'name': 'SPUBL.kz - Scientific Publications',
+                    'url': 'https://spubl.kz/ru/blog/',
+                    'parser_class': 'SpublParser',
+                    'is_active': True
+                },
+            ]
+
+            for sd in sources_data:
+                session.add(Source(**sd))
+
+            await session.commit()
+
+            await update.message.reply_text(
+                f"✅ Добавлено {len(sources_data)} источников!\n\n"
+                + "\n".join(f"• {s['name']}" for s in sources_data)
+                + "\n\nТеперь можешь нажать 🔄 Собрать новости"
+            )
+            logger.info(f"Sources initialized by user {user_id}")
+
+    except Exception as e:
+        logger.error(f"Error initializing sources: {e}")
+        await update.message.reply_text(f"❌ Ошибка: {e}")

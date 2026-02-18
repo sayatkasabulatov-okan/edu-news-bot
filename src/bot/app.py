@@ -22,6 +22,7 @@ def create_bot_application() -> Application:
     app.add_handler(CommandHandler("stats", commands.stats_command))
     app.add_handler(CommandHandler("collect", commands.collect_command))
     app.add_handler(CommandHandler("health", commands.health_command))
+    app.add_handler(CommandHandler("init_sources", commands.init_sources_command))
     app.add_handler(CommandHandler("admin", admin_commands.admin_command))
 
     # Extended admin commands
