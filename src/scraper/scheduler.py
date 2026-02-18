@@ -4,6 +4,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 import asyncio
+from zoneinfo import ZoneInfo
 
 from src.config import settings
 from src.database.connection import get_session
@@ -25,31 +26,34 @@ class ScraperScheduler:
         # NEW: Schedule article processing at specific hours
         if hasattr(settings, 'ENABLE_ARTICLE_MODE') and settings.ENABLE_ARTICLE_MODE:
             scraping_hours = settings.SCRAPING_HOURS if hasattr(settings, 'SCRAPING_HOURS') else '9,14,18'
+            tz = ZoneInfo(settings.TIMEZONE)
             self.scheduler.add_job(
                 self.run_article_processing,
                 trigger=CronTrigger(
                     hour=scraping_hours,
-                    minute=0
+                    minute=0,
+                    timezone=tz
                 ),
                 id='article_processing',
                 replace_existing=True,
                 name=f'Article Processing ({scraping_hours})'
             )
             logger.info(
-                f"Article processing mode enabled. Running at hours: {scraping_hours}"
+                f"Article processing mode enabled. Running at hours: {scraping_hours} ({settings.TIMEZONE})"
             )
 
         # OLD: Keep daily scraping for digest mode (backward compatibility)
         if hasattr(settings, 'ENABLE_DIGEST_MODE') and settings.ENABLE_DIGEST_MODE:
+            tz_digest = ZoneInfo(settings.TIMEZONE)
             self.scheduler.add_job(
                 self.run_daily_scraping,
-                trigger=CronTrigger(hour=settings.SCRAPING_SCHEDULE_HOUR, minute=0),
+                trigger=CronTrigger(hour=settings.SCRAPING_SCHEDULE_HOUR, minute=0, timezone=tz_digest),
                 id='daily_scraping',
                 replace_existing=True,
                 name='Daily News Scraping'
             )
             logger.info(
-                f"Digest mode enabled. Daily scraping at {settings.SCRAPING_SCHEDULE_HOUR}:00"
+                f"Digest mode enabled. Daily scraping at {settings.SCRAPING_SCHEDULE_HOUR}:00 ({settings.TIMEZONE})"
             )
 
         self.scheduler.start()

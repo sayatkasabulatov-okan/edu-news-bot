@@ -62,6 +62,7 @@ class Settings(BaseSettings):
     # Article Mode Configuration (NEW)
     SCRAPING_INTERVAL_HOURS: int = Field(default=4, env='SCRAPING_INTERVAL_HOURS')
     SCRAPING_HOURS: str = Field(default='9,14,18', env='SCRAPING_HOURS')
+    TIMEZONE: str = Field(default='Asia/Almaty', env='TIMEZONE')
 
     @property
     def scraping_hours_list(self) -> List[int]:
