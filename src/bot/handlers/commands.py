@@ -256,10 +256,9 @@ async def collect_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Prepare results message
         results_text = "\n".join(results_by_source)
 
-        # Ensure settings is available (fix for shadowing issue)
-        from src.config import settings as config_settings
-
         if total_new_articles > 0:
+            min_articles = settings.MIN_ARTICLES_FOR_DIGEST
+            digest_hint = '✨ Достаточно для создания дайджеста!' if total_new_articles >= min_articles else f'⏳ Нужно еще {min_articles - total_new_articles} статей для дайджеста'
             final_message = f"""
 ✅ Сбор новостей завершен!
 
@@ -268,7 +267,7 @@ async def collect_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 📊 Всего новых статей: {total_new_articles}
 
-{'✨ Достаточно для создания дайджеста!' if total_new_articles >= settings.MIN_ARTICLES_FOR_DIGEST else f'⏳ Нужно еще {settings.MIN_ARTICLES_FOR_DIGEST - total_new_articles} статей для дайджеста'}
+{digest_hint}
             """
         else:
             final_message = f"""
