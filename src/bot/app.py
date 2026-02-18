@@ -47,7 +47,7 @@ def create_bot_application() -> Application:
 
     # Add message handlers for text input
     # Menu button presses (specific filters to avoid conflicts)
-    menu_button_filter = filters.Regex("^(📊 Статистика|ℹ️ Справка|🔧 Админ-панель|🔄 Собрать новости|📰 Последний дайджест)$")
+    menu_button_filter = filters.Regex("^(📊 Статистика|ℹ️ Справка|🔧 Админ-панель|🔄 Собрать новости|📰 Последняя статья)$")
     app.add_handler(MessageHandler(
         menu_button_filter,
         menu_handlers.handle_menu_text
