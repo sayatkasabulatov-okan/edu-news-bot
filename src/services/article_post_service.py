@@ -137,6 +137,8 @@ class ArticlePostService:
 🕐 {article.published_at.strftime('%d.%m.%Y %H:%M') if article.published_at else 'Дата неизвестна'}
 ━━━━━━━━━━━━━━━━━━━━━━
 
+<b>{article.title}</b>
+
 """
 
             # Build footer with article link

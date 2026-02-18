@@ -246,19 +246,27 @@ class PostService:
                         if not post_with_article or not post_with_article.article:
                             continue
 
+                        article = post_with_article.article
+
+                        # Build message text with article title
+                        if article.title:
+                            publish_text = f"<b>{article.title}</b>\n\n{post.content}\n\n<a href=\"{article.url}\">🔗 Читать оригинал</a>"
+                        else:
+                            publish_text = post.content
+
                         # Get image from article
-                        image_url = post_with_article.article.image_url if post_with_article.article else None
+                        image_url = article.image_url if article else None
 
                         # Publish to channel with article image
                         if image_url:
-                            if len(post.content) > 1024:
+                            if len(publish_text) > 1024:
                                 await self.bot.send_photo(
                                     chat_id=self.channel_id,
                                     photo=prepare_photo(image_url)
                                 )
                                 message = await self.bot.send_message(
                                     chat_id=self.channel_id,
-                                    text=post.content,
+                                    text=publish_text,
                                     parse_mode='HTML',
                                     disable_web_page_preview=True
                                 )
@@ -266,13 +274,13 @@ class PostService:
                                 message = await self.bot.send_photo(
                                     chat_id=self.channel_id,
                                     photo=prepare_photo(image_url),
-                                    caption=post.content,
+                                    caption=publish_text,
                                     parse_mode='HTML'
                                 )
                         else:
                             message = await self.bot.send_message(
                                 chat_id=self.channel_id,
-                                text=post.content,
+                                text=publish_text,
                                 parse_mode='HTML',
                                 disable_web_page_preview=True
                             )
@@ -395,6 +403,12 @@ class PostService:
             # Publish to channel
             logger.info(f"Publishing post {post_id} to channel {self.channel_id}")
 
+            # Build message text with article title if available
+            if post.article_id and post.article and post.article.title:
+                publish_text = f"<b>{post.article.title}</b>\n\n{post.content}\n\n<a href=\"{post.article.url}\">🔗 Читать оригинал</a>"
+            else:
+                publish_text = post.content
+
             # Get image from article if available
             image_url = None
             if post.article_id and post.article and post.article.image_url:
@@ -404,7 +418,7 @@ class PostService:
             # Send with image if available
             if image_url:
                 # Check if caption is too long (Telegram limit is 1024 chars)
-                if len(post.content) > 1024:
+                if len(publish_text) > 1024:
                     # Send image and text separately
                     await self.bot.send_photo(
                         chat_id=self.channel_id,
@@ -412,7 +426,7 @@ class PostService:
                     )
                     message = await self.bot.send_message(
                         chat_id=self.channel_id,
-                        text=post.content,
+                        text=publish_text,
                         parse_mode='HTML',
                         disable_web_page_preview=True
                     )
@@ -421,13 +435,13 @@ class PostService:
                     message = await self.bot.send_photo(
                         chat_id=self.channel_id,
                         photo=prepare_photo(image_url),
-                        caption=post.content,
+                        caption=publish_text,
                         parse_mode='HTML'
                     )
             else:
                 message = await self.bot.send_message(
                     chat_id=self.channel_id,
-                    text=post.content,
+                    text=publish_text,
                     parse_mode='HTML',
                     disable_web_page_preview=True
                 )
