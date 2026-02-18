@@ -414,44 +414,28 @@ async def init_sources_command(update: Update, context: ContextTypes.DEFAULT_TYP
                 )
                 return
 
-            # Add all sources
+            # Add all sources (from add_sources + add_new_sources + add_excel_sources)
             sources_data = [
-                {
-                    'name': 'Bolashak International Scholarship',
-                    'url': 'https://bolashak.gov.kz/ru/news/',
-                    'parser_class': 'BolashakParser',
-                    'is_active': True
-                },
-                {
-                    'name': 'Opportunities Circle',
-                    'url': 'https://www.opportunitiescircle.com/scholarships/',
-                    'parser_class': 'OpportunitiesCircleParser',
-                    'is_active': True
-                },
-                {
-                    'name': 'Opportunities Corners',
-                    'url': 'https://opportunitiescorners.com/category/internships/',
-                    'parser_class': 'OpportunitiesCornersParser',
-                    'is_active': True
-                },
-                {
-                    'name': 'Bright Scholarship',
-                    'url': 'https://brightscholarship.com/',
-                    'parser_class': 'BrightScholarshipParser',
-                    'is_active': True
-                },
-                {
-                    'name': 'Global Scholarships (Kazakhstan)',
-                    'url': 'https://globalscholarships.com/scholarship-search/nationality-kazakhstan/',
-                    'parser_class': 'GlobalScholarshipsParser',
-                    'is_active': True
-                },
-                {
-                    'name': 'SPUBL.kz - Scientific Publications',
-                    'url': 'https://spubl.kz/ru/blog/',
-                    'parser_class': 'SpublParser',
-                    'is_active': True
-                },
+                # Original sources
+                {'name': 'Bolashak International Scholarship', 'url': 'https://bolashak.gov.kz/ru/news/', 'parser_class': 'BolashakParser', 'is_active': True},
+                {'name': 'Opportunities Circle', 'url': 'https://www.opportunitiescircle.com/scholarships/', 'parser_class': 'OpportunitiesCircleParser', 'is_active': True},
+                {'name': 'Opportunities Corners', 'url': 'https://opportunitiescorners.com/category/internships/', 'parser_class': 'OpportunitiesCornersParser', 'is_active': True},
+                # New sources
+                {'name': 'Bright Scholarship', 'url': 'https://brightscholarship.com/', 'parser_class': 'BrightScholarshipParser', 'is_active': True},
+                {'name': 'Global Scholarships (Kazakhstan)', 'url': 'https://globalscholarships.com/scholarship-search/nationality-kazakhstan/', 'parser_class': 'GlobalScholarshipsParser', 'is_active': True},
+                {'name': 'SPUBL.kz - Scientific Publications', 'url': 'https://spubl.kz/ru/blog/', 'parser_class': 'SpublParser', 'is_active': True},
+                # Excel sources
+                {'name': 'ST-GR - Гранты и стипендии', 'url': 'https://st-gr.com/?cat=4', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'SICA Grants - Social Innovation', 'url': 'https://socialinnovationca.org/ru/grants-ru/sica-grants/', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'Grantist - База грантов', 'url': 'https://grantist.com/', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'The Village KZ - Образование', 'url': 'https://www.the-village-kz.com/village/city/education', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'Scholars4Dev - Стипендии', 'url': 'https://www.scholars4dev.com/', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'Opportunities For Youth', 'url': 'https://opportunitiesforyouth.org/', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'Great YOP - Образовательные возможности', 'url': 'https://greatyop.com/fully-funded-scholarships-for-international-students/', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'Inform.kz - Новости образования', 'url': 'https://www.inform.kz/', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'МОН РК - Министерство образования', 'url': 'https://www.gov.kz/memleket/entities/sci?lang=ru', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': '24.kz - Новости Казахстана', 'url': 'https://24.kz/ru', 'parser_class': 'GenericParser', 'is_active': True},
+                {'name': 'Zakon.kz - Законодательство об образовании', 'url': 'https://www.zakon.kz/', 'parser_class': 'GenericParser', 'is_active': True},
             ]
 
             for sd in sources_data:
