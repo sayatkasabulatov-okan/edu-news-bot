@@ -57,9 +57,9 @@ class DigestService:
             image_url = None
             from src.database.repositories.settings_repo import SettingsRepository
             settings_repo = SettingsRepository(self.session)
-            settings = await settings_repo.get_settings()
+            db_settings = await settings_repo.get_settings()
 
-            if settings.images_enabled:
+            if db_settings.images_enabled:
                 image_url = await self._get_digest_image(articles)
             else:
                 logger.info("Images disabled in settings, skipping image generation")
